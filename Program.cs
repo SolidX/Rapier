@@ -58,7 +58,7 @@ namespace LoanRepaymentProjector
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write(" | ");
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("{0,10}", loan.Name);
+                    Console.Write("{0,10}", loan.LoanName);
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write(" | ");
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -75,7 +75,7 @@ namespace LoanRepaymentProjector
                 }
                 else
                 {
-                    Console.WriteLine("{0,3:G} | {1,10} | {2,6:F3}% | {3,10:C} | {4,7:C}", loan.Id, loan.Name, loan.InterestRate * 100, loan.Principal, loan.MinimumPayment);
+                    Console.WriteLine("{0,3:G} | {1,10} | {2,6:F3}% | {3,10:C} | {4,7:C}", loan.Id, loan.LoanName, loan.InterestRate * 100, loan.Principal, loan.MinimumPayment);
                 }
 
                 if (criticalWarning) Console.BackgroundColor = ConsoleColor.Black;
@@ -154,7 +154,7 @@ namespace LoanRepaymentProjector
 
             foreach (var rec in recommendations)
             {
-                Console.WriteLine("{0,3:G} | {1,10} | {2,10:C} | {3,7:C}", rec.Key.Id, rec.Key.Name, rec.Key.Principal, rec.Value.Amount);
+                Console.WriteLine("{0,3:G} | {1,10} | {2,10:C} | {3,7:C}", rec.Key.Id, rec.Key.LoanName, rec.Key.Principal, rec.Value.Amount);
             }
             Console.WriteLine();
             Console.ResetColor();
