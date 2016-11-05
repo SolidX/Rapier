@@ -10,6 +10,11 @@ namespace LoanRepaymentProjector
         public readonly int Id;
 
         /// <summary>
+        /// The amount of interest accrued on the loan
+        /// </summary>
+        public decimal AccruedInterest { get; private set; }
+
+        /// <summary>
         /// Loan's interest rate
         /// </summary>
         public decimal InterestRate { get; set; }
@@ -49,12 +54,27 @@ namespace LoanRepaymentProjector
 
         /// <summary>
         /// Sets the <see cref="Principal"/> balance of the loan and its associated <see cref="PrincipalEffectiveDate"/>
+        /// Deprecated. This is only here for backwards compatability at the moment. Specify the accrued interest going forward.
         /// </summary>
-        /// <param name="amount"></param>
-        /// <param name="asOf"></param>
-        public void SetPrincipal(decimal amount, DateTime asOf)
+        /// <param name="principal">The loan's principal balance</param>
+        /// <param name="asOf">The date os of which the <paramref name="principal"/> are being reported.</param>
+        [Obsolete("Specify the accrued interest as well going foward.")]
+        public void SetBalance(decimal principal, DateTime asOf)
         {
-            Principal = amount;
+            Principal = principal;
+            PrincipalEffectiveDate = asOf;
+        }
+
+        /// <summary>
+        /// Sets the <see cref="Principal"/> balance & <see cref="AccruedInterest"/> of the loan and its associated <see cref="PrincipalEffectiveDate"/>
+        /// </summary>
+        /// <param name="principal">The loan's principal balance</param>
+        /// <param name="interest">The accrued interest on the loan</param>
+        /// <param name="asOf">The date as of which the <paramref name="principal"/> and accrued <paramref name="interest"/> are being set.</param>
+        public void SetBalance(decimal principal, decimal interest, DateTime asOf)
+        {
+            Principal = principal;
+            AccruedInterest = interest;
             PrincipalEffectiveDate = asOf;
         }
 
@@ -73,7 +93,7 @@ namespace LoanRepaymentProjector
         /// <param name="asOf">The date to calculate accrued interest for</param>
         /// <returns>The interest accrued on the loan as of the provided date.</returns>
         /// <exception cref="InvalidOperationException">When the provided <paramref name="asOf"/> date is before the loan's <see cref="PrincipalEffectiveDate"/>.</exception>
-        public decimal AccruedInterest(DateTime asOf)
+        public decimal CalculateInterest(DateTime asOf)
         {
             if (asOf < PrincipalEffectiveDate) throw new InvalidOperationException();
 
@@ -102,16 +122,6 @@ namespace LoanRepaymentProjector
         }
 
         /// <summary>
-        /// Calcuates the interest accrued between DateTime.Now and the <see cref="PrincipalEffectiveDate"/>.
-        /// </summary>
-        /// <returns>The interest accrued on the loan.</returns>
-        /// <exception cref="InvalidOperationException">When the loan's <see cref="PrincipalEffectiveDate"/> is in the future.</exception>
-        public decimal AccruedInterestToDate()
-        {
-            return AccruedInterest(DateTime.Now);
-        }
-
-        /// <summary>
         /// The sum of the interest accrued up until <paramref name="asOf"/> and the <see cref="Principal"/> balance.
         /// </summary>
         /// <param name="asOf">The date to calculate accrued interest for</param>
@@ -119,17 +129,17 @@ namespace LoanRepaymentProjector
         /// <exception cref="InvalidOperationException">When the provided <paramref name="asOf"/> date is before the loan's <see cref="PrincipalEffectiveDate"/>.</exception>
         public decimal TotalOwed(DateTime asOf)
         {
-            return AccruedInterest(asOf) + Principal;
+            return CalculateInterest(asOf) + Principal;
         }
 
         /// <summary>
-        /// The sum of <see cref="AccruedInterestToDate"/> and <see cref="Principal"/>
+        /// The sum of <see cref="AccruedInterest"/> and <see cref="Principal"/>
         /// </summary>
         /// <returns>The total balance currently owed on the loan.</returns>
         /// <exception cref="InvalidOperationException">When the loan's <see cref="PrincipalEffectiveDate"/> is in the future.</exception>
-        public decimal TotalCurrentlyOwed()
+        public decimal TotalOwed()
         {
-            return AccruedInterestToDate() + Principal;
+            return AccruedInterest + Principal;
         }
 
         public Loan ProjectForward(DateTime to)

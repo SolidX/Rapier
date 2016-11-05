@@ -189,7 +189,7 @@ namespace LoanRepaymentProjector
                     recommendations.Add(loan.Id, recommendedPayment);
 
                     //Apply recommended payment
-                    loan.SetPrincipal(loan.Principal - recommendedPayment.Amount, now);
+                    loan.SetBalance(loan.Principal - recommendedPayment.Amount, now);
                     totalPaidIn += recommendedPayment.Amount;
                 }
                 now = now.AddMonths(1);
