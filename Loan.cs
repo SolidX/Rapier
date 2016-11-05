@@ -103,7 +103,13 @@ namespace LoanRepaymentProjector
             {
                 if (i == PrincipalEffectiveDate.Year)
                 {
-                    var dateDiff = (new DateTime(PrincipalEffectiveDate.Year, 12, 31) - PrincipalEffectiveDate).Days;
+                    var dateDiff = 0;
+
+                    if (PrincipalEffectiveDate.Year == asOf.Year)
+                        dateDiff = (asOf - PrincipalEffectiveDate).Days;
+                    else
+                        dateDiff = (new DateTime(PrincipalEffectiveDate.Year, 12, 31) - PrincipalEffectiveDate).Days;
+
                     total += ((Principal * InterestRate) / (decimal)PrincipalEffectiveDate.DaysInYear()) * dateDiff;
                     continue;
                 }
