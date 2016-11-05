@@ -109,7 +109,7 @@ namespace LoanRepaymentProjector
         public static void GetCurrentRecommendedPaymentAmount(decimal totalFunds)
         {
             var dt = DateTime.Now;
-            var loansAsOfNow = GetLoanProjections(dt);
+            var loansAsOfNow = GetLoanProjections(allLoans.Values, dt);
             var totalInterest = loansAsOfNow.Sum(kvp => kvp.Value.CurrentDailyInterestRate());
             var recommendations = new Dictionary<Loan, Payment>();
 
@@ -126,12 +126,6 @@ namespace LoanRepaymentProjector
             DisplayRecommendedLoanPayment(recommendations);
         }
 
-        [Obsolete("Use the one where you can specify the loans to project")]
-        public static Dictionary<int, Loan> GetLoanProjections(DateTime dt)
-        {
-            return GetLoanProjections(allLoans.Values, dt);
-        }
-
         public static Dictionary<int, Loan> GetLoanProjections(IEnumerable<Loan> loans, DateTime dt)
         {
             return loans.ToDictionary(k => k.Id, v => v.ProjectForward(dt));
@@ -139,7 +133,7 @@ namespace LoanRepaymentProjector
 
         public static void ProjectForwardTo(DateTime dt, decimal paid)
         {
-            var testProjection = GetLoanProjections(dt);
+            var testProjection = GetLoanProjections(allLoans.Values, dt);
 
             Console.WriteLine("Projection to " + dt.ToString());
             DisplayLoansStatus(testProjection);
