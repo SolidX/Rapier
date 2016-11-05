@@ -115,7 +115,7 @@ namespace LoanRepaymentProjector
                 }
 
                 var daysInYear = new DateTime(i, 1, 1).DaysInYear();
-                total += ((Principal * InterestRate) / (decimal)daysInYear) * (decimal)daysInYear;
+                total += (Principal * InterestRate);
             }
 
             return total;
