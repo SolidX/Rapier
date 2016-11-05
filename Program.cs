@@ -36,9 +36,9 @@ namespace LoanRepaymentProjector
         public static void DisplayLoansStatus(Dictionary<int, Loan> loanSet)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("-------------------------------------------------");
-            Console.WriteLine("{0,-3:G} | {1,-10:G} |{2,-6:G}| {3,-10:G} | {4,-7:G}", "Id", "Name", "Int. Rate", "Principal", "Min Pay");
-            Console.WriteLine("----+------------+---------+------------+--------");
+            Console.WriteLine("-----------------------------------------------------------");
+            Console.WriteLine("{0,-3:G} | {1,-10:G} |{2,-6:G}| {3,-10:G} | {4,-7:G} | {5,-7:G}", "Id", "Name", "Int. Rate", "Principal", "Acc Int", "Min Pay");
+            Console.WriteLine("----+------------+---------+------------+---------+--------");
 
             var largestDebt = loanSet.Values.Where(l => l.Principal == loanSet.Values.Max(m => m.Principal)).Select(l => l.Id);
             var highestInterest = loanSet.Values.Where(l => l.InterestRate == loanSet.Values.Max(m => m.InterestRate)).Select(l => l.Id);
@@ -70,12 +70,16 @@ namespace LoanRepaymentProjector
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.Write(" | ");
                     Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.Write("{0,7:C}", loan.AccruedInterest);
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(" | ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("{0,7:C}", loan.MinimumPayment);
                     Console.ForegroundColor = ConsoleColor.White;
                 }
                 else
                 {
-                    Console.WriteLine("{0,3:G} | {1,10} | {2,6:F3}% | {3,10:C} | {4,7:C}", loan.Id, loan.LoanName, loan.InterestRate * 100, loan.Principal, loan.MinimumPayment);
+                    Console.WriteLine("{0,3:G} | {1,10} | {2,6:F3}% | {3,10:C} | {4,7:C} | {5,7:C}", loan.Id, loan.LoanName, loan.InterestRate * 100, loan.Principal, loan.AccruedInterest, loan.MinimumPayment);
                 }
 
                 if (criticalWarning) Console.BackgroundColor = ConsoleColor.Black;
@@ -143,12 +147,12 @@ namespace LoanRepaymentProjector
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("---------------------------------------");
-            Console.WriteLine("{0,-3:G} | {1,-10:G} | {2,-10:G} | {3,-7:G}", "Id", "Name", "Principal", "Payment");
-            Console.WriteLine("----+------------+------------+--------");
+            Console.WriteLine("{0,-3:G} | {1,-10:G} | {2,-10:G} | {3,-8:G} | {4,-7:G}", "Id", "Name", "Principal", "Interest", "Payment");
+            Console.WriteLine("----+------------+------------+----------+--------");
 
             foreach (var rec in recommendations)
             {
-                Console.WriteLine("{0,3:G} | {1,10} | {2,10:C} | {3,7:C}", rec.Key.Id, rec.Key.LoanName, rec.Key.Principal, rec.Value.Amount);
+                Console.WriteLine("{0,3:G} | {1,10} | {2,10:C} | {3,8:C} | {4,7:C}", rec.Key.Id, rec.Key.LoanName, rec.Key.Principal, rec.Key.AccruedInterest, rec.Value.Amount);
             }
             Console.WriteLine();
             Console.ResetColor();
