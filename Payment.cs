@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LoanRepaymentProjector
 {
-    public struct Payment
+    public class Payment
     {
         public decimal Amount { get; set; }
         public DateTime PaidOn { get; set; }

@@ -53,19 +53,6 @@ namespace LoanRepaymentProjector
         }
 
         /// <summary>
-        /// Sets the <see cref="Principal"/> balance of the loan and its associated <see cref="PrincipalEffectiveDate"/>
-        /// Deprecated. This is only here for backwards compatability at the moment. Specify the accrued interest going forward.
-        /// </summary>
-        /// <param name="principal">The loan's principal balance</param>
-        /// <param name="asOf">The date os of which the <paramref name="principal"/> are being reported.</param>
-        [Obsolete("Specify the accrued interest as well going foward.")]
-        public void SetBalance(decimal principal, DateTime asOf)
-        {
-            Principal = principal;
-            PrincipalEffectiveDate = asOf;
-        }
-
-        /// <summary>
         /// Sets the <see cref="Principal"/> balance & <see cref="AccruedInterest"/> of the loan and its associated <see cref="PrincipalEffectiveDate"/>
         /// </summary>
         /// <param name="principal">The loan's principal balance</param>

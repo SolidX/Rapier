@@ -158,43 +158,54 @@ namespace LoanRepaymentProjector
             Console.ResetColor();
         }
 
+        /// <summary>
+        /// Projects how long it will take to repay all loans with a fixed monthly payment.
+        /// </summary>
+        /// <param name="avgMonthlyPayment">Amount to pay each month</param>
+        /// <param name="firstPayment">Date of the first payment</param>
+        /// <returns>Last payment date for the loans</returns>
         public static DateTime EstimateRepaymentCompletionDate(decimal avgMonthlyPayment, DateTime firstPayment)
         {
             if (avgMonthlyPayment <= 0)
                 return DateTime.MaxValue;
 
             var now = firstPayment;
-            var loans = allLoans;
+            var loans = allLoans.Values.Select(l => l.ProjectForward(now)).ToDictionary(k => k.Id);  //accumulated interest to the 1st payment
+            var payments = new List<Payment>();
 
-            var totalPrincipal = loans.Values.Sum(l => l.Principal);
-            var totalPaidIn = 0m;
-
-            do
+            while (true)
             {
-                loans = loans.Values.Select(l => l.ProjectForward(now)).ToDictionary(k => k.Id);
-
                 //Loan Payment suggestion calculation
-                //TODO this architehcture is ass, fix it
                 var totalInterest = loans.Values.Sum(l => l.CurrentDailyInterestRate());
-                var recommendations = new Dictionary<int, Payment>();
+                var recommendations = loans.Values.Where(l => l.TotalOwed() > 0m).ToDictionary(k => k.Id, v => new Payment() { Amount = avgMonthlyPayment * (v.CurrentDailyInterestRate() / totalInterest), PaidOn = now });
 
-                foreach (var loan in loans.Values)
+                foreach (var kvp in recommendations)
                 {
-                    var recommendedAmount = avgMonthlyPayment * (loan.CurrentDailyInterestRate() / totalInterest);
-                    if (recommendedAmount <= 0m && loan.Principal <= 0m) continue;
-                    var recommendedPayment = new Payment();
-                    recommendedPayment.Amount = recommendedAmount > loan.MinimumPayment ? recommendedAmount : loan.MinimumPayment;
-                    recommendations.Add(loan.Id, recommendedPayment);
+                    //Meet minimum monthly payment requirement
+                    var minPayment = loans[kvp.Key].MinimumPayment;
+                    if (kvp.Value.Amount < minPayment)
+                        kvp.Value.Amount = minPayment;
 
-                    //Apply recommended payment
-                    loan.SetBalance(loan.Principal - recommendedPayment.Amount, now);
-                    totalPaidIn += recommendedPayment.Amount;
+                    //Pay even less if the loan balance is less than the minimum payment
+                    if (loans[kvp.Key].TotalOwed() <= loans[kvp.Key].MinimumPayment)
+                        kvp.Value.Amount = loans[kvp.Key].TotalOwed();
                 }
-                now = now.AddMonths(1);
-            }
-            while (loans.Values.Sum(l => l.Principal) > 0m);
 
-            return now;
+                //Theoretically there shouldn't be any extra funds left over because of the proportional allocation :sweat_smile:
+
+                var updatedLoans = new Dictionary<int, Loan>();
+                foreach (var kvp in recommendations)
+                {
+                    var paid = loans[kvp.Key].MakePayment(kvp.Value);
+                    updatedLoans.Add(paid.Id, paid);
+                }
+                loans = updatedLoans;
+
+                if (loans.Values.Sum(l => l.Principal) > 0m)
+                    now = now.AddMonths(1);
+                else
+                    return now; //Last Payment Date
+            }
         }
     }
 }
