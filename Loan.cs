@@ -153,8 +153,11 @@ namespace LoanRepaymentProjector
         /// </summary>
         /// <param name="p">The payment to make.</param>
         /// <returns>A new Loan reflecting the payment on the principal balance & accrued interest</returns>
+        /// <exception cref="InvalidOperationException">When the provided Payment's PaidOn date is before the <see cref="PrincipalEffectiveDate"/>.</exception>
         public Loan MakePayment(Payment p)
         {
+            if (p.PaidOn < PrincipalEffectiveDate) throw new InvalidOperationException();
+
             var paymentAmount = p.Amount;
             var interestReduction = 0.00m;
             var principalReduction = 0.00m;
@@ -177,30 +180,20 @@ namespace LoanRepaymentProjector
             return l;
         }
 
+        /// <summary>
+        /// Returns a copy of this loan with no payments applied at the provided date.
+        /// </summary>
+        /// <param name="to">Date to project the loan balance to.</param>
+        /// <returns>A new Loan reflecting an accumulatin of interest over time.</returns>
+        /// <exception cref="InvalidOperationException">When the provided date is before the <see cref="PrincipalEffectiveDate"/>.</exception>
         public Loan ProjectForward(DateTime to)
         {
             if (to < PrincipalEffectiveDate) throw new InvalidOperationException();
+            if ((to - PrincipalEffectiveDate).Days == 0) return this;
 
-            var dateDiff = (to - PrincipalEffectiveDate).Days;
-
-            if (dateDiff == 0) return this;
-
-
-            var newPrincipal = 0.00m;
-            if (to.Year == PrincipalEffectiveDate.Year)
-            {
-                newPrincipal = (CurrentDailyInterestRate() * (decimal)dateDiff) + Principal;
-            }
-            else
-            {
-                newPrincipal = ((PrincipalEffectiveDate.DaysInYear() - PrincipalEffectiveDate.DayOfYear) * CurrentDailyInterestRate()) + Principal;
-                for (int i = PrincipalEffectiveDate.Year + 1; i < to.Year; i++)
-                    newPrincipal *= (1 + InterestRate);
-
-                newPrincipal += newPrincipal * (1 + InterestRate) / to.DaysInYear() * to.DayOfYear;
-            }
-
-            return new Loan(Id, newPrincipal, to) { InterestRate = InterestRate, LoanName = LoanName, MinimumPayment = MinimumPayment };
+            var l = new Loan { InterestRate = InterestRate, LoanName = LoanName, MinimumPayment = MinimumPayment };
+            l.SetBalance(Principal, AccruedInterest + Math.Round(CalculateInterest(to), 2), to);
+            return l;
         }
     }
 }
