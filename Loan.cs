@@ -142,6 +142,35 @@ namespace LoanRepaymentProjector
             return AccruedInterest + Principal;
         }
 
+        /// <summary>
+        /// Returns a copy of this loan with the payment amount applied to the <see cref="AccruedInterest"/> first and then the <see cref="Principal"/>.
+        /// </summary>
+        /// <param name="p">The payment to make.</param>
+        /// <returns>A new Loan reflecting the payment on the principal balance & accrued interest</returns>
+        public Loan MakePayment(Payment p)
+        {
+            var paymentAmount = p.Amount;
+            var interestReduction = 0.00m;
+            var principalReduction = 0.00m;
+
+            if (paymentAmount >= AccruedInterest)
+            {
+                interestReduction = AccruedInterest;
+                paymentAmount -= AccruedInterest;
+            }
+            else
+            {
+                interestReduction = paymentAmount;
+                paymentAmount = 0;
+            }
+
+            principalReduction = paymentAmount;
+
+            var l = new Loan { InterestRate = InterestRate, LoanName = LoanName, MinimumPayment = MinimumPayment };
+            l.SetBalance(Principal - principalReduction, AccruedInterest - interestReduction, p.PaidOn);
+            return l;
+        }
+
         public Loan ProjectForward(DateTime to)
         {
             if (to < PrincipalEffectiveDate) throw new InvalidOperationException();
