@@ -30,20 +30,26 @@ namespace LoanRepaymentProjector
 
             return loans;
         }
-        public static void DisplayLoansStatus(Dictionary<int, Loan> loanSet)
+
+        /// <summary>
+        /// Outputs loan information to the console in tabular form.
+        /// Displays the loans with the largest balances, fastest accumulating intrest and highest interest rates with additional emphasis.
+        /// </summary>
+        /// <param name="loanSet">The loans to display</param>
+        public static void DisplayLoansStatus(IEnumerable<Loan> loanSet)
         {
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("-----------------------------------------------------------");
             Console.WriteLine("{0,-3:G} | {1,-10:G} |{2,-6:G}| {3,-10:G} | {4,-7:G} | {5,-7:G}", "Id", "Name", "Int. Rate", "Principal", "Acc Int", "Min Pay");
             Console.WriteLine("----+------------+---------+------------+---------+--------");
 
-            var largestDebt = loanSet.Values.Where(l => l.Principal == loanSet.Values.Max(m => m.Principal)).Select(l => l.Id);
-            var highestInterest = loanSet.Values.Where(l => l.InterestRate == loanSet.Values.Max(m => m.InterestRate)).Select(l => l.Id);
-            var highestDaily = loanSet.Values.Where(l => l.CurrentDailyInterestRate() == loanSet.Values.Max(m => m.CurrentDailyInterestRate())).Select(l => l.Id);
+            var largestDebt = loanSet.Where(l => l.Principal == loanSet.Max(m => m.Principal)).Select(l => l.Id);
+            var highestInterest = loanSet.Where(l => l.InterestRate == loanSet.Max(m => m.InterestRate)).Select(l => l.Id);
+            var highestDaily = loanSet.Where(l => l.CurrentDailyInterestRate() == loanSet.Max(m => m.CurrentDailyInterestRate())).Select(l => l.Id);
 
             var idsToWarn = largestDebt.Union(highestInterest).Distinct();
 
-            foreach (var loan in loanSet.Values)
+            foreach (var loan in loanSet)
             {
                 var criticalWarning = highestDaily.Contains(loan.Id);
                 if (criticalWarning) Console.BackgroundColor = ConsoleColor.DarkRed;
@@ -137,7 +143,7 @@ namespace LoanRepaymentProjector
             var testProjection = GetLoanProjections(allLoans.Values, dt);
 
             Console.WriteLine("Projection to " + dt.ToString());
-            DisplayLoansStatus(testProjection);
+            DisplayLoansStatus(testProjection.Values);
         }
 
         public static void DisplayRecommendedLoanPayment(Dictionary<Loan, Payment> recommendations)
