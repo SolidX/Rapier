@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoanRepaymentProjector
 {
@@ -15,7 +13,6 @@ namespace LoanRepaymentProjector
             HighestInterestRate,
             HighestDailyRate,
         }
-
 
         static void Main(string[] args)
         {
@@ -161,17 +158,17 @@ namespace LoanRepaymentProjector
         /// <summary>
         /// Projects how long it will take to repay all loans with a fixed monthly payment.
         /// </summary>
+        /// <param name="loanSet">Loans to estimate repayment completion date for.</param>
         /// <param name="avgMonthlyPayment">Amount to pay each month</param>
         /// <param name="firstPayment">Date of the first payment</param>
         /// <returns>Last payment date for the loans</returns>
-        public static DateTime EstimateRepaymentCompletionDate(decimal avgMonthlyPayment, DateTime firstPayment)
+        public static DateTime EstimateRepaymentCompletionDate(IEnumerable<Loan> loanSet, decimal avgMonthlyPayment, DateTime firstPayment)
         {
             if (avgMonthlyPayment <= 0)
                 return DateTime.MaxValue;
 
             var now = firstPayment;
-            var loans = allLoans.Values.Select(l => l.ProjectForward(now)).ToDictionary(k => k.Id);  //accumulated interest to the 1st payment
-            var payments = new List<Payment>();
+            var loans = loanSet.Select(l => l.ProjectForward(now)).ToDictionary(k => k.Id);  //accumulated interest to the 1st payment
 
             while (true)
             {
