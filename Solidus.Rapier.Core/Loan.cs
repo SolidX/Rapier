@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace LoanRepaymentProjector
+namespace Solidus.Rapier.Core
 {
     public class Loan
     {
@@ -43,13 +42,6 @@ namespace LoanRepaymentProjector
         {
             Id = _idGenerator;
             _idGenerator++;
-        }
-
-        private Loan(int id, decimal principal, DateTime principalDt)
-        {
-            Id = id;
-            Principal = principal;
-            PrincipalEffectiveDate = principalDt;
         }
 
         /// <summary>

@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Solidus.Rapier.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LoanRepaymentProjector
+namespace Solidus.Rapier
 {
     class Program
     {
@@ -20,15 +21,15 @@ namespace LoanRepaymentProjector
 
             DisplaySplashLogo();
             Console.WriteLine("\n");
-            GetCurrentRecommendedPaymentAmount(400m);
+        }
+
         public static List<Loan> GetLoans()
         {
-            var principalDt = new DateTime(2016, 10, 13);
             var loans = new List<Loan>();
             return loans;
         }
 
-            return loans;
+        }
         }
 
         /// <summary>

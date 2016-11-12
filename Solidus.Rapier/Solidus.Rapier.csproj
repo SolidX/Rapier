@@ -41,14 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Loan.cs" />
-    <Compile Include="Payment.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Solidus.Rapier.Core\Solidus.Rapier.Core.csproj">
+      <Project>{000E6965-D74D-4CF4-9F0D-7C7510E789E1}</Project>
+      <Name>Solidus.Rapier.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
