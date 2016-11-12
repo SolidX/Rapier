@@ -136,12 +136,11 @@ namespace LoanRepaymentProjector
         }
 
         /// <summary>
-        /// Returns a copy of this loan with the payment amount applied to the <see cref="AccruedInterest"/> first and then the <see cref="Principal"/>.
+        /// Applies the payment amount to the <see cref="AccruedInterest"/> first and then the <see cref="Principal"/> balance.
         /// </summary>
         /// <param name="p">The payment to make.</param>
-        /// <returns>A new Loan reflecting the payment on the principal balance & accrued interest</returns>
         /// <exception cref="InvalidOperationException">When the provided Payment's PaidOn date is before the <see cref="PrincipalEffectiveDate"/>.</exception>
-        public Loan MakePayment(Payment p)
+        public void MakePayment(Payment p)
         {
             if (p.PaidOn < PrincipalEffectiveDate) throw new InvalidOperationException();
 
@@ -162,9 +161,7 @@ namespace LoanRepaymentProjector
 
             principalReduction = paymentAmount;
 
-            var l = new Loan { InterestRate = InterestRate, LoanName = LoanName, MinimumPayment = MinimumPayment };
-            l.SetBalance(Principal - principalReduction, AccruedInterest - interestReduction, p.PaidOn);
-            return l;
+            SetBalance(Principal - principalReduction, AccruedInterest - interestReduction, p.PaidOn);
         }
 
         /// <summary>

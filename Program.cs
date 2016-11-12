@@ -149,7 +149,7 @@ namespace LoanRepaymentProjector
         public static void DisplayRecommendedLoanPayment(Dictionary<Loan, Payment> recommendations)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("---------------------------------------");
+            Console.WriteLine("--------------------------------------------------");
             Console.WriteLine("{0,-3:G} | {1,-10:G} | {2,-10:G} | {3,-8:G} | {4,-7:G}", "Id", "Name", "Principal", "Interest", "Payment");
             Console.WriteLine("----+------------+------------+----------+--------");
 
@@ -195,14 +195,8 @@ namespace LoanRepaymentProjector
                 }
 
                 //Theoretically there shouldn't be any extra funds left over because of the proportional allocation :sweat_smile:
-
-                var updatedLoans = new Dictionary<int, Loan>();
                 foreach (var kvp in recommendations)
-                {
-                    var paid = loans[kvp.Key].MakePayment(kvp.Value);
-                    updatedLoans.Add(paid.Id, paid);
-                }
-                loans = updatedLoans;
+                    loans[kvp.Key].MakePayment(kvp.Value);
 
                 if (loans.Values.Sum(l => l.Principal) > 0m)
                     now = now.AddMonths(1);
