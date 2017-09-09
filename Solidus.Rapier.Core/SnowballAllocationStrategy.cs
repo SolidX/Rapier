@@ -5,8 +5,8 @@ using System.Linq;
 namespace Solidus.Rapier.Core
 {
     /// <summary>
-    /// A Repayment strategy in which you pay an equal amount across all the loans in a bundle.
-    /// It is also both the simplest and most naive way of doing things.
+    /// A Repayment strategy in which you pay the minimum payment in to each loan and then apply any money left over to the loan(s) with the smallest balance remaining.
+    /// This method is known as snowball model.
     /// </summary>
     public class SnowballAllocationStrategy : IRepaymentStrategy
     {
@@ -14,16 +14,16 @@ namespace Solidus.Rapier.Core
         {
             var loansAsOfDt = loans.Select(l => l.ProjectForward(paymentDate)).OrderBy(x => x.TotalOwed()).ThenBy(x => x.Id);  //Project debts to paymentDate & sort by smallest amount owed first
 
-            var leftOver = totalPayment - loansAsOfDt.Sum(x => x.MinimumPayment);
-            var allocations = loansAsOfDt.ToDictionary(k => k.Id, v => new Payment { Amount = v.MinimumPayment, PaidOn = paymentDate});
+            var leftOver = totalPayment - loansAsOfDt.Sum(x => x.EffeciveMinimumPayment);
+            var allocations = loansAsOfDt.ToDictionary(k => k.Id, v => new Payment { Amount = v.EffeciveMinimumPayment, PaidOn = paymentDate});
             
             if (leftOver >= 0)
             {
                 foreach (var l in loansAsOfDt)
                 {
-                    if (leftOver >= l.TotalOwed() - l.MinimumPayment)
+                    if (leftOver >= l.TotalOwed() - l.EffeciveMinimumPayment)
                     {
-                        leftOver = leftOver - (l.TotalOwed() - l.MinimumPayment);
+                        leftOver = leftOver - (l.TotalOwed() - l.EffeciveMinimumPayment);
                         allocations[l.Id].Amount = l.TotalOwed();
                     }
                     else

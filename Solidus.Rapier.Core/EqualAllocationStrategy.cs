@@ -12,9 +12,9 @@ namespace Solidus.Rapier.Core
     {
         public Dictionary<int, Payment> RecommendedPaymentAllocations(IEnumerable<Loan> loans, decimal totalPayment, DateTime paymentDate)
         {
-            var loansAsOfDt = loans.Select(l => l.ProjectForward(paymentDate));  //Project debts to paymentDate
-            var allocation = totalPayment / loansAsOfDt.Count();
-            return loansAsOfDt.ToDictionary(k => k.Id, v => new Payment { Amount = allocation, PaidOn = paymentDate });
+            var loansAsOfDt = loans.Select(l => l.ProjectForward(paymentDate)).ToDictionary(k => k.Id);  //Project debts to paymentDate
+            var allocation = totalPayment / loansAsOfDt.Values.Count(x => x.TotalOwed() > 0);
+            return loansAsOfDt.Values.ToDictionary(k => k.Id, v => new Payment { Amount = v.TotalOwed() > 0 ? allocation : 0, PaidOn = paymentDate });
         }
     }
 }

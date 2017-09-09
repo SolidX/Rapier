@@ -34,6 +34,13 @@ namespace Solidus.Rapier.Core
         public decimal MinimumPayment { get; set; }
 
         /// <summary>
+        /// The minimum payment amount allowed for this loan with the loan's balance taken into consideration.
+        /// </summary>
+        public decimal EffeciveMinimumPayment {
+            get { return MinimumPayment < TotalOwed() ? MinimumPayment : TotalOwed(); }
+        }
+
+        /// <summary>
         /// A human readable name for this loan
         /// </summary>
         public string LoanName { get; set; }
