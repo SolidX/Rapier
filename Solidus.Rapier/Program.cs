@@ -26,9 +26,6 @@ namespace Solidus.Rapier
             return loans;
         }
 
-        }
-        }
-
         /// <summary>
         /// Outputs loan information to the console in tabular form.
         /// Displays the loans with the largest balances, fastest accumulating intrest and highest interest rates with additional emphasis.
