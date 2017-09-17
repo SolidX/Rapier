@@ -7,7 +7,6 @@ namespace Solidus.Rapier
 {
     class Program
     {
-        private static Dictionary<int, Loan> allLoans;
         private enum LoanWarnings
         {
             LargestDebt,
@@ -17,8 +16,6 @@ namespace Solidus.Rapier
 
         static void Main(string[] args)
         {
-            allLoans = GetLoans().ToDictionary(l => l.Id);
-
             DisplaySplashLogo();
             Console.WriteLine("\n");
         }
@@ -110,27 +107,18 @@ namespace Solidus.Rapier
         }
 
         /// <summary>
-        /// Given a total amount to pay in to all loans, displays a recommended amount that should be paid into each Loan based on accumulating interest.
+        /// Given a total amount to pay in to all loans, displays a recommended amount that should be paid into each <see cref="Loan"/> based on the <see cref="IRepaymentStrategy"/> specified in the <paramref name="bundle"/>.
         /// </summary>
+        /// <param name="bundle">Loans & RepaymentStrategy to use to calculate recommended payments.</param>
         /// <param name="totalFunds">Total amount to pay in to all loans for this payment period.</param>
         /// <returns></returns>
-        public static void GetCurrentRecommendedPaymentAmount(decimal totalFunds)
+        public static void GetCurrentRecommendedPaymentAmount(LoanBundle bundle, decimal totalFunds)
         {
-            var dt = DateTime.Now;
-            var loansAsOfNow = GetLoanProjections(allLoans.Values, dt);
-            var totalInterest = loansAsOfNow.Sum(kvp => kvp.Value.CurrentDailyInterestRate());
-            var recommendations = new Dictionary<Loan, Payment>();
+            var now = DateTime.Now;
+            var allocations = bundle.GetRecommendedPaymentAmounts(totalFunds, now);
+            var recommendations = bundle.Loans.ToDictionary(k => k, v => allocations[v.Id]);
 
-            foreach (var loan in loansAsOfNow.Values)
-            {
-                var recommendedAmount = totalFunds * (loan.CurrentDailyInterestRate() / totalInterest);
-                var recommendedPayment = new Payment();
-                recommendedPayment.Amount = recommendedAmount > loan.MinimumPayment ? recommendedAmount : loan.MinimumPayment;
-                recommendations.Add(loan, recommendedPayment);
-            }
-            //TODO: Ensure min payment is met by scaling down total payment if it's greater than totalFunds
-
-            Console.WriteLine("Recommended Payments on " + dt.ToString());
+            Console.WriteLine("Recommended Payments on " + now.ToString());
             DisplayRecommendedLoanPayment(recommendations);
         }
 
