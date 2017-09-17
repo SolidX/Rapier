@@ -134,19 +134,6 @@ namespace Solidus.Rapier
             DisplayRecommendedLoanPayment(recommendations);
         }
 
-        public static Dictionary<int, Loan> GetLoanProjections(IEnumerable<Loan> loans, DateTime dt)
-        {
-            return loans.ToDictionary(k => k.Id, v => v.ProjectForward(dt));
-        }
-
-        public static void ProjectForwardTo(DateTime dt, decimal paid)
-        {
-            var testProjection = GetLoanProjections(allLoans.Values, dt);
-
-            Console.WriteLine("Projection to " + dt.ToString());
-            DisplayLoansStatus(testProjection.Values);
-        }
-
         public static void DisplayRecommendedLoanPayment(Dictionary<Loan, Payment> recommendations)
         {
             Console.ForegroundColor = ConsoleColor.White;
@@ -165,45 +152,16 @@ namespace Solidus.Rapier
         /// <summary>
         /// Projects how long it will take to repay all loans with a fixed monthly payment.
         /// </summary>
-        /// <param name="loanSet">Loans to estimate repayment completion date for.</param>
+        /// <param name="b">Loans to estimate repayment completion date for.</param>
         /// <param name="avgMonthlyPayment">Amount to pay each month</param>
         /// <param name="firstPayment">Date of the first payment</param>
         /// <returns>Last payment date for the loans</returns>
-        public static DateTime EstimateRepaymentCompletionDate(IEnumerable<Loan> loanSet, decimal avgMonthlyPayment, DateTime firstPayment)
+        public static DateTime EstimateRepaymentCompletionDate(LoanBundle b, decimal avgMonthlyPayment, DateTime firstPayment)
         {
             if (avgMonthlyPayment <= 0)
                 return DateTime.MaxValue;
 
-            var now = firstPayment;
-            var loans = loanSet.Select(l => l.ProjectForward(now)).ToDictionary(k => k.Id);  //accumulated interest to the 1st payment
-
-            while (true)
-            {
-                //Loan Payment suggestion calculation
-                var totalInterest = loans.Values.Sum(l => l.CurrentDailyInterestRate());
-                var recommendations = loans.Values.Where(l => l.TotalOwed() > 0m).ToDictionary(k => k.Id, v => new Payment() { Amount = avgMonthlyPayment * (v.CurrentDailyInterestRate() / totalInterest), PaidOn = now });
-
-                foreach (var kvp in recommendations)
-                {
-                    //Meet minimum monthly payment requirement
-                    var minPayment = loans[kvp.Key].MinimumPayment;
-                    if (kvp.Value.Amount < minPayment)
-                        kvp.Value.Amount = minPayment;
-
-                    //Pay even less if the loan balance is less than the minimum payment
-                    if (loans[kvp.Key].TotalOwed() <= loans[kvp.Key].MinimumPayment)
-                        kvp.Value.Amount = loans[kvp.Key].TotalOwed();
-                }
-
-                //Theoretically there shouldn't be any extra funds left over because of the proportional allocation :sweat_smile:
-                foreach (var kvp in recommendations)
-                    loans[kvp.Key].MakePayment(kvp.Value);
-
-                if (loans.Values.Sum(l => l.Principal) > 0m)
-                    now = now.AddMonths(1);
-                else
-                    return now; //Last Payment Date
-            }
+            return b.EstimateRepaymentCompletionDate(avgMonthlyPayment, firstPayment);
         }
     }
 }

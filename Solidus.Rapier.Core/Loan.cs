@@ -2,6 +2,7 @@
 
 namespace Solidus.Rapier.Core
 {
+    //[Serializable] - We can't use this in PCLs
     public class Loan
     {
         private static int _idGenerator = 0;
@@ -49,6 +50,11 @@ namespace Solidus.Rapier.Core
         {
             Id = _idGenerator;
             _idGenerator++;
+        }
+
+        private Loan(int loanId)
+        {
+            Id = loanId;
         }
 
         /// <summary>
@@ -174,7 +180,7 @@ namespace Solidus.Rapier.Core
             if (to < PrincipalEffectiveDate) throw new InvalidOperationException();
             if ((to - PrincipalEffectiveDate).Days == 0) return this;
 
-            var l = new Loan { InterestRate = InterestRate, LoanName = LoanName, MinimumPayment = MinimumPayment };
+            var l = new Loan(Id) { InterestRate = InterestRate, LoanName = LoanName, MinimumPayment = MinimumPayment };
             l.SetBalance(Principal, AccruedInterest + Math.Round(CalculateInterest(to), 2), to);
             return l;
         }
