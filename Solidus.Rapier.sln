@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solidus.Rapier", "Solidus.Rapier\Solidus.Rapier.csproj", "{FFE196B7-BD12-4AD2-BA98-E1B83F86153D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solidus.Rapier.Core", "Solidus.Rapier.Core\Solidus.Rapier.Core.csproj", "{000E6965-D74D-4CF4-9F0D-7C7510E789E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solidus.Rapier.Core", "Solidus.Rapier.Core\Solidus.Rapier.Core.csproj", "{8CB8C4E6-426F-447F-8439-EA03FFBBE6FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,10 +18,10 @@ Global
 		{FFE196B7-BD12-4AD2-BA98-E1B83F86153D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFE196B7-BD12-4AD2-BA98-E1B83F86153D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFE196B7-BD12-4AD2-BA98-E1B83F86153D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{000E6965-D74D-4CF4-9F0D-7C7510E789E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{000E6965-D74D-4CF4-9F0D-7C7510E789E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{000E6965-D74D-4CF4-9F0D-7C7510E789E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{000E6965-D74D-4CF4-9F0D-7C7510E789E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CB8C4E6-426F-447F-8439-EA03FFBBE6FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CB8C4E6-426F-447F-8439-EA03FFBBE6FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CB8C4E6-426F-447F-8439-EA03FFBBE6FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CB8C4E6-426F-447F-8439-EA03FFBBE6FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

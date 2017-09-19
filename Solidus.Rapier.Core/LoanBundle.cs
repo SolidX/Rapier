@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Solidus.Rapier.Core
 {
-    public class LoanBundle
+    public class LoanBundle : ICloneable
     {
         public IEnumerable<Loan> Loans { get; set; }
         public IRepaymentStrategy RepaymentStrategy { get; private set; }
@@ -43,6 +43,41 @@ namespace Solidus.Rapier.Core
             }
 
             return now;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="avgMonthlyPayment"></param>
+        /// <param name="firstPayment"></param>
+        /// <returns></returns>
+        public EstimatedRepaymentModel EstimateRepaymentDetails(decimal avgMonthlyPayment, DateTime firstPayment)
+        {
+            var now = firstPayment;
+            var loans = Loans.ToDictionary(k => k.Id);
+            var lifetimePayements = loans.Keys.ToDictionary(k => k, v => 0m);
+
+            while (loans.Values.Sum(x => x.TotalOwed()) > 0)
+            {
+                var recommendations = RepaymentStrategy.RecommendedPaymentAllocations(loans.Values, avgMonthlyPayment, now);
+                foreach (var x in recommendations.Keys)
+                {
+                    loans[x].MakePayment(recommendations[x]);
+                    lifetimePayements[x] += recommendations[x].Amount;
+                }
+
+                now = now.AddMonths(1);
+            }
+
+            return new EstimatedRepaymentModel { StrategyName = RepaymentStrategy.GetType().Name.ToString(), RepaymentDate = now, TotalPaid = lifetimePayements.Values.Sum(), PaymentBreakdown = lifetimePayements };
+        }
+
+        public object Clone()
+        {   
+            var l = new List<Loan>();
+            l.AddRange(Loans.Select(x => x.Clone() as Loan));
+
+            return new LoanBundle(RepaymentStrategy) { Loans = l };
         }
     }
 }

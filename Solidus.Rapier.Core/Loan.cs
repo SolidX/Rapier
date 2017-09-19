@@ -2,8 +2,7 @@
 
 namespace Solidus.Rapier.Core
 {
-    //[Serializable] - We can't use this in PCLs
-    public class Loan
+    public class Loan : ICloneable
     {
         private static int _idGenerator = 0;
 
@@ -183,6 +182,11 @@ namespace Solidus.Rapier.Core
             var l = new Loan(Id) { InterestRate = InterestRate, LoanName = LoanName, MinimumPayment = MinimumPayment };
             l.SetBalance(Principal, AccruedInterest + Math.Round(CalculateInterest(to), 2), to);
             return l;
+        }
+
+        public object Clone()
+        {
+            return new Loan(Id) { AccruedInterest = AccruedInterest, InterestRate = InterestRate, LoanName = LoanName, MinimumPayment = MinimumPayment, Principal = Principal, PrincipalEffectiveDate = PrincipalEffectiveDate };
         }
     }
 }
