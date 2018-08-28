@@ -47,6 +47,7 @@
     <Compile Include="Payment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RepaymentStrategies\AvalancheAllocationStrategy.cs" />
+    <Compile Include="RepaymentStrategies\MinimumPaymentStrategy.cs" />
     <Compile Include="RepaymentStrategies\EqualAllocationStrategy.cs" />
     <Compile Include="RepaymentStrategies\IRepaymentStrategy.cs" />
     <Compile Include="RepaymentStrategies\ProportionalAllocationStrategy.cs" />
