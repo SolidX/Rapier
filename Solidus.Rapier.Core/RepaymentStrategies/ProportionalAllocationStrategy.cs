@@ -12,21 +12,40 @@ namespace Solidus.Rapier.Core
 
             while (true)
             {
-                //Loan Payment suggestion calculation
-                var totalInterest = loansAsOfDt.Values.Sum(l => l.CurrentDailyInterestRate());
-                var recommendations = loansAsOfDt.Values.Where(l => l.TotalOwed() > 0m).ToDictionary(k => k.Id, v => new Payment() { Amount = totalPayment * (v.CurrentDailyInterestRate() / totalInterest), PaidOn = paymentDate });
-
-                foreach (var kvp in recommendations)
+                var totalInterest = 0m;
+                var totalOwed = 0m;
+                
+                //Sum daily accruing interest and balances owed
+                foreach (var l in loansAsOfDt.Values)
                 {
-                    //Meet minimum monthly payment requirement
-                    var minPayment = loansAsOfDt[kvp.Key].MinimumPayment;
-                    if (kvp.Value.Amount < minPayment)
-                        kvp.Value.Amount = minPayment;
-
-                    //Pay even less if the loan balance is less than the minimum payment
-                    if (loansAsOfDt[kvp.Key].TotalOwed() <= loansAsOfDt[kvp.Key].MinimumPayment)
-                        kvp.Value.Amount = loansAsOfDt[kvp.Key].TotalOwed();
+                    totalInterest += l.CurrentDailyInterestRate();
+                    totalOwed += l.TotalOwed();
                 }
+
+                //Loan Payment suggestion calculation
+                var recommendations = loansAsOfDt.Values.Where(l => l.TotalOwed() > 0m).ToDictionary(k => k.Id, v =>
+                {
+                    var suggestedPayment = v.MinimumPayment;
+
+                    if (totalInterest == 0m)
+                    {
+                        //In the special case where all loans are not accruing interest, allocate proprotional to balance owed rather than the daily interest accrued.
+                        //Thanks COVID-19 for putting everyone's loans in to forebearance!
+                        var balanceBasedPayment = totalPayment * (v.TotalOwed() / totalOwed);
+                        suggestedPayment = (balanceBasedPayment >= v.MinimumPayment ? balanceBasedPayment : v.MinimumPayment); //Meet minimum monthly payment requirement
+
+                    }
+                    else
+                    {
+                        var interestBasedPayment = totalPayment * (v.CurrentDailyInterestRate() / totalInterest);
+                        suggestedPayment = (interestBasedPayment >= v.MinimumPayment ? interestBasedPayment : v.MinimumPayment); //Meet minimum monthly payment requirement
+                    }
+
+                    //Reduce suggested payment amount to match loan balance if it exceeds the loan's balance
+                    suggestedPayment = (suggestedPayment > v.TotalOwed() ? v.TotalOwed() : suggestedPayment);
+
+                    return new Payment() { Amount = suggestedPayment, PaidOn = paymentDate }; ;
+                });
 
                 return recommendations;
             }
